@@ -10,6 +10,7 @@ import "primereact/resources/themes/lara-light-cyan/theme.css";
 import { Toast } from "primereact/toast";
 import { useRef, useState } from "react";
 import "./App.css";
+import StatisticsComponent from "./components/StatisticsComponent";
 
 interface Match {
   player1Id: number;
@@ -227,32 +228,6 @@ function App() {
     </div>
   );
 
-  const Statistics = ({
-    topScorerId,
-    topScorerGoals,
-    bestDefenseId,
-    bestDefenseConceded,
-    highestGoalMatch,
-  }: Statistics) => (
-    <div className="statistics">
-      <h3>Estatísticas</h3>
-      <p>
-        Artilheiro: Jogador {topScorerId} - {topScorerGoals} gols feitos
-      </p>
-      <p>
-        Melhor Defesa: Jogador {bestDefenseId} - {bestDefenseConceded} gols
-        sofridos
-      </p>
-      {highestGoalMatch && (
-        <p>
-          Maior Goleada: Jogador {highestGoalMatch.player1Id}{" "}
-          {highestGoalMatch.score1} x {highestGoalMatch.score2} Jogador{" "}
-          {highestGoalMatch.player2Id}
-        </p>
-      )}
-    </div>
-  );
-
   const renderTournament = () => {
     if (!tournament) {
       return <p></p>;
@@ -345,7 +320,7 @@ function App() {
             ))}
           </div>
 
-          <Statistics
+          <StatisticsComponent
             topScorerId={topScorerId}
             topScorerGoals={topScorerGoals}
             bestDefenseId={bestDefenseId}
@@ -430,7 +405,7 @@ function App() {
             </div>
           ))}
 
-          <Statistics
+          <StatisticsComponent
             topScorerId={topScorerId}
             topScorerGoals={topScorerGoals}
             bestDefenseId={bestDefenseId}
@@ -498,7 +473,12 @@ function App() {
               placeholder="Selecione o tipo de torneio"
             />
           </div>
-          <div className="p-field">
+          <div
+            className="p-field"
+            style={{
+              marginTop: 20,
+            }}
+          >
             <label htmlFor="numberOfTeams">Número de Times</label>
             <InputNumber
               id="numberOfTeams"
