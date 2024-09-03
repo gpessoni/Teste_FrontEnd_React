@@ -7,7 +7,7 @@ import { DataTable } from "primereact/datatable";
 import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputNumber } from "primereact/inputnumber";
-import "primereact/resources/themes/lara-light-cyan/theme.css";
+import "primereact/resources/themes/lara-light-indigo/theme.css";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
@@ -31,11 +31,10 @@ interface Tournament {
 
 function App() {
   const apiUrl = process.env.VITE_SOME_KEY;
-  console.log(apiUrl);
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loading, setLoading] = useState(false);
-  const [tournamentType, setTournamentType] = useState("GROUP");
-  const [numberOfTeams, setNumberOfTeams] = useState(4);
+  const [tournamentType, setTournamentType] = useState("");
+  const [numberOfTeams, setNumberOfTeams] = useState();
 
   const [oldTournaments, setOldTournaments] = useState<Tournament[]>([]);
   const [selectedTournament, setSelectedTournament] =
@@ -54,6 +53,22 @@ function App() {
   ];
 
   const generateTournament = async () => {
+    if (
+      numberOfTeams === undefined ||
+      numberOfTeams === 0 ||
+      numberOfTeams === null ||
+      tournamentType === ""
+    ) {
+      if (toast.current) {
+        toast.current.show({
+          severity: "error",
+          summary: "Erro",
+          detail: "Preencha todos os campos",
+        });
+      }
+      return;
+    }
+
     setLoading(true);
     try {
       if (tournamentType === "ELIMINATORY" && !isPowerOfTwo(numberOfTeams)) {
@@ -373,12 +388,14 @@ function App() {
           <Toast ref={toast} />
           <h1>Gerador de Torneios</h1>
           <Button
+            className="button"
             label="Gerar Torneio"
             onClick={() => setDialogNewVisible(true)}
             loading={loading}
           />
           <br /> <br />
           <Button
+            className="button"
             label="Ver Torneios Antigos"
             icon="pi pi-calendar"
             onClick={() => setDialogVisible(true)}
@@ -419,8 +436,9 @@ function App() {
             <label htmlFor="numberOfTeams">Número de Times</label>
             <InputNumber
               id="numberOfTeams"
+              placeholder="Número de Times"
               value={numberOfTeams}
-              onValueChange={(e) => setNumberOfTeams(e.value || 4)}
+              onValueChange={(e) => setNumberOfTeams(e.value)}
               min={2}
               max={64}
               step={1}
