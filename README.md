@@ -1,50 +1,51 @@
-# React + TypeScript + Vite
+# Torneio Generator Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este projeto é uma interface de usuário desenvolvida em React para gerar chaveamentos de torneios com base no número de jogadores e no tipo de chaveamento selecionado. A aplicação oferece uma experiência de usuário intuitiva e é integrada com a API de backend.
 
-Currently, two official plugins are available:
+## Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Inserção da quantidade de jogadores:** Permite ao usuário definir o número de participantes do torneio.
+- **Seleção do modelo de chaveamento:** O usuário pode escolher entre chave eliminatória ou grupo único.
+- **Geração de jogos:** Ao clicar no botão "Gerar Jogos", a aplicação envia os dados para o backend, que retorna o chaveamento gerado.
+- **Exibição do chaveamento:** Mostra de forma clara e organizada os confrontos e rodadas para o modelo eliminatório ou a tabela de jogos para grupo único.
+- **Boas práticas de UI/UX:** A interface é projetada para ser intuitiva e fácil de usar.
 
-## Expanding the ESLint configuration
+## Tecnologias Utilizadas
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **React:** Biblioteca JavaScript para construção da interface de usuário.
+- **Vite:** Ferramenta para desenvolvimento rápido de projetos em React, proporcionando uma experiência de desenvolvimento ágil e eficiente.
+- **CSS:** Utilizado para estilizar a interface e garantir uma boa experiência visual.
 
-- Configure the top-level `parserOptions` property like this:
+## Pré-requisitos
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- [Node.js](https://nodejs.org/) instalado.
+- Backend e banco de dados configurados e rodando.
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Configuração do Projeto
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+1. **Renomeie o arquivo `.env_example` para `.env`.**
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+   - Neste arquivo, você deve configurar a URL onde o backend está rodando, para que o frontend consiga se comunicar corretamente com a API.
+
+2. **Instale as dependências:**
+
+   ```bash
+   npm install
+   ```
+
+   - Esse comando instala todas as dependências necessárias para o projeto.
+
+3. **Inicie o servidor de desenvolvimento:**
+   ```bash
+   npm run dev
+   ```
+   - Esse comando inicia o servidor de desenvolvimento, permitindo que você visualize e interaja com a interface de usuário no navegador.
+
+## Uso
+
+- **Acesse a aplicação:** Após iniciar o servidor, você pode acessar a interface em `http://localhost:5174` .
+- **Gerar chaveamento:** Insira o número de jogadores, selecione o tipo de chaveamento e clique em "Gerar Jogos" para visualizar o chaveamento gerado.
+
+## Licença
+
+Este projeto é licenciado sob a [MIT License](LICENSE).
