@@ -8,10 +8,11 @@ import { Dropdown } from "primereact/dropdown";
 import { InputNumber } from "primereact/inputnumber";
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import { Toast } from "primereact/toast";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import StatisticsComponent from "./components/StatisticsComponent";
 import { calculateStatistics } from "./components/CalculateStatistics";
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 interface Match {
   player1Id: number;
@@ -22,42 +23,26 @@ interface Match {
 }
 
 interface Tournament {
+  tournamentId?: number | null;
   matches: Match[];
   champion: number;
   tournamentType: string;
 }
 
-interface TeamStats {
-  scored: number;
-  conceded: number;
-  wins: number;
-  draws: number;
-  losses: number;
-  points: number;
-}
-interface Statistics {
-  topScorerId: number | null;
-  topScorerGoals: number | null;
-  bestDefenseConceded: number | null;
-  bestDefenseId: number | null;
-  highestGoalMatch: {
-    player1Id: number;
-    player2Id: number;
-    score1: number;
-    score2: number;
-  } | null;
-  saldoGols?: {
-    playerId: number;
-    saldo: number;
-  }[];
-}
-
 function App() {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loading, setLoading] = useState(false);
-  const [dialogVisible, setDialogVisible] = useState(false);
   const [tournamentType, setTournamentType] = useState("GROUP");
   const [numberOfTeams, setNumberOfTeams] = useState(4);
+
+  const [oldTournaments, setOldTournaments] = useState<Tournament[]>([]);
+  const [selectedTournament, setSelectedTournament] =
+    useState<Tournament | null>(null);
+
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogNewVisible, setDialogNewVisible] = useState(false);
+
+  const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
 
   const toast = useRef<Toast>(null);
 
@@ -89,6 +74,7 @@ function App() {
       );
       setTournament(response.data);
       setDialogVisible(false);
+      setDialogNewVisible(false);
     } catch (error: any) {
       console.error("Erro ao gerar torneio:", error);
       if (toast.current) {
@@ -103,6 +89,56 @@ function App() {
     }
   };
 
+  const deleteTournament = async () => {
+    if (!selectedTournament) {
+      return;
+    }
+    console.log(selectedTournament);
+    setLoading(true);
+    try {
+      await axios.delete(
+        `http://localhost:3333/tournaments/${selectedTournament.tournamentId}`
+      );
+
+      if (toast.current) {
+        toast.current.show({
+          severity: "success",
+          summary: "Sucesso",
+          detail: "Torneio deletado com sucesso.",
+        });
+      }
+
+      setOldTournaments((prevTournaments) =>
+        prevTournaments.filter(
+          (tournament) =>
+            tournament.tournamentId !== selectedTournament.tournamentId
+        )
+      );
+    } catch (error: any) {
+      console.error("Erro ao deletar torneio:", error);
+      if (toast.current) {
+        toast.current.show({
+          severity: "error",
+          summary: "Erro",
+          detail: error.message,
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchOldTournaments = async () => {
+    try {
+      const response = await axios.get<Tournament[]>(
+        "http://localhost:3333/tournaments"
+      );
+      setOldTournaments(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar torneios antigos:", error);
+    }
+  };
+
   const isPowerOfTwo = (n: number): boolean => {
     return n > 0 && (n & (n - 1)) === 0;
   };
@@ -114,6 +150,7 @@ function App() {
   );
 
   const renderTournament = () => {
+    console.log(tournament);
     if (!tournament) {
       return <p></p>;
     }
@@ -318,6 +355,20 @@ function App() {
     );
   };
 
+  const handleTournamentSelect = (tournament: Tournament) => {
+    setSelectedTournament(tournament);
+    setTournament(tournament);
+    setDialogVisible(false);
+    setDialogVisible(false);
+    renderTournament();
+  };
+
+  useEffect(() => {
+    if (dialogVisible) {
+      fetchOldTournaments();
+    }
+  }, [dialogVisible]);
+
   return (
     <>
       <div className="App">
@@ -326,25 +377,29 @@ function App() {
           <h1>Gerador de Torneios</h1>
           <Button
             label="Gerar Torneio"
-            onClick={() => setDialogVisible(true)}
+            onClick={() => setDialogNewVisible(true)}
             loading={loading}
           />
           <br /> <br />
-          <p>Ver torneios Antigos</p>
+          <Button
+            label="Ver Torneios Antigos"
+            icon="pi pi-calendar"
+            onClick={() => setDialogVisible(true)}
+          />
           {renderTournament()}
         </div>
       </div>
       <Dialog
         draggable={false}
         header="Configurações do Torneio"
-        visible={dialogVisible}
+        visible={dialogNewVisible}
         style={{ width: "50vw" }}
         modal
         closable
         closeIcon="pi pi-times"
         closeOnEscape={true}
         className="p-fluid"
-        onHide={() => setDialogVisible(false)}
+        onHide={() => setDialogNewVisible(false)}
       >
         <div className="p-fluid">
           <div className="p-field">
@@ -385,6 +440,69 @@ function App() {
           />
         </div>
       </Dialog>
+
+      <Dialog
+        draggable={false}
+        header="Selecionar Torneio Antigo"
+        visible={dialogVisible}
+        style={{ width: "50vw" }}
+        modal
+        closable
+        closeIcon="pi pi-times"
+        closeOnEscape={true}
+        className="p-fluid"
+        onHide={() => setDialogVisible(false)}
+      >
+        <div className="p-fluid">
+          <h3>Escolha um Torneio</h3>
+          <DataTable
+            value={oldTournaments}
+            rows={10}
+            rowsPerPageOptions={[5, 10, 20]}
+            selectionMode="single"
+            selection={selectedTournament}
+          >
+            <Column field="tournamentName" header="Nome" />
+            <Column field="tournamentType" header="Tipo" />
+            <Column
+              body={(rowData) => (
+                <Button
+                  icon="pi pi-eye"
+                  onClick={() => handleTournamentSelect(rowData)}
+                />
+              )}
+            />
+            <Column
+              body={(rowData) => (
+                <Button
+                  style={{
+                    backgroundColor: "red",
+                  }}
+                  icon="pi pi-trash"
+                  onClick={() => {
+                    setSelectedTournament(rowData);
+                    setConfirmDeleteDialog(true);
+                  }}
+                />
+              )}
+            />
+          </DataTable>
+        </div>
+      </Dialog>
+
+      <ConfirmDialog
+        header="Excluir Torneio"
+        visible={confirmDeleteDialog}
+        closeIcon="pi pi-times"
+        onHide={() => setConfirmDeleteDialog(false)}
+        acceptLabel="Sim"
+        rejectLabel="Não"
+        acceptIcon="pi pi-trash"
+        accept={() => deleteTournament()}
+        rejectIcon="pi pi-times"
+        message={`Deseja excluir o torneio ?`}
+        className="p-dialog-centered"
+      ></ConfirmDialog>
     </>
   );
 }
