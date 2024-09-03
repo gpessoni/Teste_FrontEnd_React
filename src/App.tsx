@@ -2,6 +2,7 @@ import axios from "axios";
 import "primeicons/primeicons.css";
 import { Button } from "primereact/button";
 import { Column } from "primereact/column";
+import { ConfirmDialog } from "primereact/confirmdialog";
 import { DataTable } from "primereact/datatable";
 import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
@@ -10,9 +11,8 @@ import "primereact/resources/themes/lara-light-cyan/theme.css";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
-import StatisticsComponent from "./components/StatisticsComponent";
 import { calculateStatistics } from "./components/CalculateStatistics";
-import { ConfirmDialog } from "primereact/confirmdialog";
+import StatisticsComponent from "./components/StatisticsComponent";
 
 interface Match {
   player1Id: number;
@@ -30,6 +30,8 @@ interface Tournament {
 }
 
 function App() {
+  const apiUrl = process.env.VITE_SOME_KEY;
+  console.log(apiUrl);
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loading, setLoading] = useState(false);
   const [tournamentType, setTournamentType] = useState("GROUP");
@@ -66,7 +68,7 @@ function App() {
           : numberOfTeams;
 
       const response = await axios.post<Tournament>(
-        "http://localhost:3333/tournaments/generate",
+        `${apiUrl}/tournaments/generate`,
         {
           numberOfPlayers: adjustedNumberOfTeams,
           tournamentType,
@@ -93,11 +95,10 @@ function App() {
     if (!selectedTournament) {
       return;
     }
-    console.log(selectedTournament);
     setLoading(true);
     try {
       await axios.delete(
-        `http://localhost:3333/tournaments/${selectedTournament.tournamentId}`
+        `${apiUrl}/tournaments/${selectedTournament.tournamentId}`
       );
 
       if (toast.current) {
@@ -115,7 +116,6 @@ function App() {
         )
       );
     } catch (error: any) {
-      console.error("Erro ao deletar torneio:", error);
       if (toast.current) {
         toast.current.show({
           severity: "error",
@@ -130,9 +130,7 @@ function App() {
 
   const fetchOldTournaments = async () => {
     try {
-      const response = await axios.get<Tournament[]>(
-        "http://localhost:3333/tournaments"
-      );
+      const response = await axios.get<Tournament[]>(`${apiUrl}/tournaments`);
       setOldTournaments(response.data);
     } catch (error) {
       console.error("Erro ao buscar torneios antigos:", error);
@@ -150,7 +148,6 @@ function App() {
   );
 
   const renderTournament = () => {
-    console.log(tournament);
     if (!tournament) {
       return <p></p>;
     }
