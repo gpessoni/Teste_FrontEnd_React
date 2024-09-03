@@ -1,0 +1,76 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.App {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+
+.container {
+  margin: 0 auto;
+  width: 500px;
+  padding: 20px;
+}
+
+.match {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: 10px 0;
+  width: 100%;
+  max-width: 600px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  color: black;
+}
+
+.team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.team-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.score {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 5px;
+}
+
+.winner {
+  color: green;
+}
+
+.loser {
+  color: red;
+}
+
+.draw {
+  color: black;
+}
+
+.statistics {
+  margin-top: 20px;
+  padding: 10px;
+  border-top: 2px solid #ccc;
+}
+
+.statistics h3 {
+  margin-bottom: 10px;
+}
+
+.statistics p {
+  font-size: 1.2rem;
+  margin: 5px 0;
+}
