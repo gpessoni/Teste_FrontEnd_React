@@ -1,15 +1,15 @@
 import axios from "axios";
-import { Button } from "primereact/button";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import "primereact/resources/themes/lara-light-cyan/theme.css";
-import { useRef, useState } from "react";
 import "primeicons/primeicons.css";
-import "./App.css";
+import { Button } from "primereact/button";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
+import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputNumber } from "primereact/inputnumber";
-import { Dialog } from "primereact/dialog";
+import "primereact/resources/themes/lara-light-cyan/theme.css";
 import { Toast } from "primereact/toast";
+import { useRef, useState } from "react";
+import "./App.css";
 
 interface Match {
   player1Id: number;
@@ -44,7 +44,7 @@ interface Statistics {
     score1: number;
     score2: number;
   } | null;
-  saldoGols: {
+  saldoGols?: {
     playerId: number;
     saldo: number;
   }[];
@@ -221,6 +221,38 @@ function App() {
     };
   };
 
+  const ChampionHeader = ({ champion }: { champion: number }) => (
+    <div className="champion">
+      <h3>Campeão: Jogador {champion}</h3>
+    </div>
+  );
+
+  const Statistics = ({
+    topScorerId,
+    topScorerGoals,
+    bestDefenseId,
+    bestDefenseConceded,
+    highestGoalMatch,
+  }: Statistics) => (
+    <div className="statistics">
+      <h3>Estatísticas</h3>
+      <p>
+        Artilheiro: Jogador {topScorerId} - {topScorerGoals} gols feitos
+      </p>
+      <p>
+        Melhor Defesa: Jogador {bestDefenseId} - {bestDefenseConceded} gols
+        sofridos
+      </p>
+      {highestGoalMatch && (
+        <p>
+          Maior Goleada: Jogador {highestGoalMatch.player1Id}{" "}
+          {highestGoalMatch.score1} x {highestGoalMatch.score2} Jogador{" "}
+          {highestGoalMatch.player2Id}
+        </p>
+      )}
+    </div>
+  );
+
   const renderTournament = () => {
     if (!tournament) {
       return <p></p>;
@@ -253,9 +285,7 @@ function App() {
         <hr />
         <div className="tournament-container">
           <h2>Torneio em Grupo</h2>
-          <div className="champion">
-            <h3>Campeão: Jogador {champion}</h3>
-          </div>
+          <ChampionHeader champion={champion} />
           <div className="statistics">
             <h3>Classificação</h3>
             <DataTable
@@ -315,23 +345,13 @@ function App() {
             ))}
           </div>
 
-          <div className="statistics">
-            <h3>Estatísticas</h3>
-            <p>
-              Artilheiro: Jogador {topScorerId} - {topScorerGoals} gols feitos
-            </p>
-            <p>
-              Melhor Defesa: Jogador {bestDefenseId} - {bestDefenseConceded}{" "}
-              gols sofridos
-            </p>
-            {highestGoalMatch && (
-              <p>
-                Maior Goleada: Jogador {highestGoalMatch.player1Id}
-                {highestGoalMatch.score1} x {highestGoalMatch.score2} Jogador{" "}
-                {highestGoalMatch.player2Id}
-              </p>
-            )}
-          </div>
+          <Statistics
+            topScorerId={topScorerId}
+            topScorerGoals={topScorerGoals}
+            bestDefenseId={bestDefenseId}
+            bestDefenseConceded={bestDefenseConceded}
+            highestGoalMatch={highestGoalMatch}
+          />
         </div>
       </>
     );
@@ -365,9 +385,7 @@ function App() {
         <hr />
         <div className="tournament-container">
           <h2>Chaves Eliminatórias</h2>
-          <div className="champion">
-            <h3>Campeão: Jogador {champion}</h3>
-          </div>
+          <ChampionHeader champion={champion} />
           {Object.keys(matchesByRound).map((round) => (
             <div key={round} className="round">
               <h3>Rodada {round}</h3>
@@ -412,18 +430,13 @@ function App() {
             </div>
           ))}
 
-          <div className="statistics">
-            <h3>Estatísticas</h3>
-            <p>Artilheiro: Jogador {topScorerId} - {topScorerGoals} gols feitos</p>
-            <p>Melhor Defesa: Jogador {bestDefenseId} - {bestDefenseConceded} gols sofridos</p>
-            {highestGoalMatch && (
-              <p>
-                Maior Goleada: Jogador {highestGoalMatch.player1Id}{" "}
-                {highestGoalMatch.score1} x {highestGoalMatch.score2} Jogador{" "}
-                {highestGoalMatch.player2Id}
-              </p>
-            )}
-          </div>
+          <Statistics
+            topScorerId={topScorerId}
+            topScorerGoals={topScorerGoals}
+            bestDefenseId={bestDefenseId}
+            bestDefenseConceded={bestDefenseConceded}
+            highestGoalMatch={highestGoalMatch}
+          />
           <div className="statistics">
             <h4>Saldo de Gols</h4>
             <DataTable
